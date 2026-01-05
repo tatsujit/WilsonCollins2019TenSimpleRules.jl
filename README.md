@@ -1,5 +1,17 @@
 # WilsonCollins2019TenSimpleRules.jl
 
+This repository is a Julia reimplementation of the logics and results on the following paper:
+
+Wilson, R. C., & Collins, A. G. (2019). Ten simple rules for the computational modeling of behavioral data. eLife, 8, e49547. https://doi.org/10.7554/eLife.49547
+
+There is already the authors' MATLAB version: 
+
+https://github.com/AnneCollins/TenSimpleRulesModeling
+
+The extent to which I would refer to their MATLAB codes is undecided at the current time.
+
+# about this code
+
 This code base is using the [Julia Language](https://julialang.org/) and
 [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
 to make a reproducible scientific project named

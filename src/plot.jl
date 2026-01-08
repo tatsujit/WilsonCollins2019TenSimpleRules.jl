@@ -68,9 +68,20 @@ function plot_estimator_history(history::EstimatorHistory;
           fontsize = 16, font = :bold, halign = :center,
           tellwidth = false, tellheight = true)
 
+    # Display reward probabilities from the first trial's expectations
+    reward_probs = history.expectations[1]
+    reward_probs_str = "reward probs.: [" * join([string(round(p, digits=3)) for p in reward_probs], ", ") * "]"
+    Label(fig[-1, 1:4], text = reward_probs_str,
+          fontsize = 16, halign = :center,
+          tellwidth = false, tellheight = true)
+
     # Color palette for arms
-    colors = Makie.wong_colors()[1:history.n_arms] # up to 7 colors
-    # colors = Makie.seaborn_dark()[1:history.n_arms] # up to 10 colors
+    if history.n_arms <= 7
+        colors = Makie.wong_colors()[1:history.n_arms]
+    else
+        # For more than 7 arms, use a colormap and resample
+        colors = Makie.resample_cmap(:Set1_9, history.n_arms)
+    end
 
     # Calculate cumulative probabilities for stacking
     cumulative_probs = zeros(n_trials, n_arms + 1)

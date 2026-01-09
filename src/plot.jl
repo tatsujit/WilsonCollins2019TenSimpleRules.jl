@@ -185,9 +185,16 @@ function plot_history_performance(history::History;
     optimal_arm = argmax(reward_probs)
     optimal_reward = reward_probs[optimal_arm]
     
-    # Calculate regret (difference from optimal)
-    optimal_cumulative = optimal_reward * trials
-    regret = optimal_cumulative .- cumulative_rewards
+    # Calculate regret using expected rewards, not actual rewards
+    # Regret at time t = optimal_reward - expected_reward_of_chosen_arm[t]
+    # Cumulative regret should be monotonic
+    regret = zeros(n_trials)
+    for t in 1:n_trials
+        action = history.actions[t]
+        expected_reward_of_chosen_arm = history.expectations[t][action]
+        regret_increment = optimal_reward - expected_reward_of_chosen_arm
+        regret[t] = (t == 1) ? regret_increment : regret[t-1] + regret_increment
+    end
 
     # Create subplots: 2x3 grid
     ax_cum = Axis(fig[1, 1], title = "Cumulative Reward", xlabel = "Trial", ylabel = "Cumulative Reward")
@@ -253,7 +260,7 @@ end
 
 """
 Plot performance metrics for multiple History types (comparison across agents)
-- 5 columns: cumulative reward, average reward, moving average reward, cumulative regret, rewards over time
+- 4 columns: cumulative reward, average reward, moving average reward, cumulative regret
 - N rows: N different agents
 """
 function plot_history_comparison(histories::Vector{History}, 
@@ -277,32 +284,38 @@ function plot_history_comparison(histories::Vector{History},
     # fig[0]: Environment info (reward probabilities)
     reward_probs_str = "reward probs.: [" * join([string(round(p, digits=3)) for p in reward_probs], ", ") * "]"
     Label(fig[0, :], text = reward_probs_str,
-          fontsize = 16, halign = :center,
+          fontsize = 20, halign = :center,
           tellwidth = false, tellheight = true)
 
     # fig[1]: Plot title
     Label(fig[1, :], text = figure_title,
-          fontsize = 16, font = :bold, halign = :center,
+          fontsize = 20, font = :bold, halign = :center,
           tellwidth = false, tellheight = true)
 
-    # Create axes: N rows x 5 columns (starting from row 3)
-    axes_grid = Matrix{Axis}(undef, n_agents, 5)
+    # Create axes: N rows x 4 columns (starting from row 3)
+    axes_grid = Matrix{Axis}(undef, n_agents, 4)
     for row in 1:n_agents
         plot_row = row + 2  # Offset by 2 (for fig[0] and fig[1] and fig[2])
         axes_grid[row, 1] = Axis(fig[plot_row, 1], title = row == 1 ? "Cumulative Reward" : "",
-                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "")
+                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "",
+                                 titlesize = 20, xlabelsize = 20, ylabelsize = 20,
+                                 xticklabelsize = 16, yticklabelsize = 16)
         axes_grid[row, 2] = Axis(fig[plot_row, 2], title = row == 1 ? "Average Reward" : "",
-                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "")
+                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "",
+                                 titlesize = 20, xlabelsize = 20, ylabelsize = 20,
+                                 xticklabelsize = 16, yticklabelsize = 16)
         axes_grid[row, 3] = Axis(fig[plot_row, 3], title = row == 1 ? "Moving Avg Reward" : "",
-                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "")
+                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "",
+                                 titlesize = 20, xlabelsize = 20, ylabelsize = 20,
+                                 xticklabelsize = 16, yticklabelsize = 16)
         axes_grid[row, 4] = Axis(fig[plot_row, 4], title = row == 1 ? "Cumulative Regret" : "",
-                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "")
-        axes_grid[row, 5] = Axis(fig[plot_row, 5], title = row == 1 ? "Rewards Over Time" : "",
-                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "")
+                                 xlabel = row == n_agents ? "Trial" : "", ylabel = "",
+                                 titlesize = 20, xlabelsize = 20, ylabelsize = 20,
+                                 xticklabelsize = 16, yticklabelsize = 16)
 
         # Add row label (model/policy name) at column 0
         Label(fig[plot_row, 0], text = labels[row],
-              fontsize = 12, rotation = π/2, halign = :center, valign = :center,
+              fontsize = 20, rotation = π/2, halign = :center, valign = :center,
               tellwidth = true, tellheight = false)
     end
 
@@ -310,8 +323,8 @@ function plot_history_comparison(histories::Vector{History},
     for row in 1:n_agents
         rowsize!(fig.layout, row + 2, Relative(1/n_agents))
     end
-    for col in 1:5
-        colsize!(fig.layout, col, Relative(1/5))
+    for col in 1:4
+        colsize!(fig.layout, col, Relative(1/4))
     end
 
     # Color palette for different agents
@@ -319,6 +332,32 @@ function plot_history_comparison(histories::Vector{History},
         agent_colors = Makie.wong_colors()[1:n_agents]
     else
         agent_colors = Makie.resample_cmap(:Set1_9, n_agents)
+    end
+
+    # Calculate regrets for all agents first to determine max y-axis range
+    all_regrets = Vector{Vector{Float64}}(undef, n_agents)
+    for (agent_idx, history) in enumerate(histories)
+        # Calculate regret using expected rewards, not actual rewards
+        # Regret at time t = optimal_reward - expected_reward_of_chosen_arm[t]
+        regret = zeros(n_trials)
+        for t in 1:n_trials
+            action = history.actions[t]
+            expected_reward_of_chosen_arm = history.expectations[t][action]
+            regret_increment = optimal_reward - expected_reward_of_chosen_arm
+            regret[t] = (t == 1) ? regret_increment : regret[t-1] + regret_increment
+        end
+        all_regrets[agent_idx] = regret
+    end
+    
+    # Find maximum regret value across all agents for y-axis alignment
+    max_regret = maximum([maximum(regret) for regret in all_regrets])
+    min_regret = minimum([minimum(regret) for regret in all_regrets])
+    # Ensure 0.0 is visible: if min_regret is close to 0, add some padding below
+    if min_regret >= 0.0 && min_regret < max_regret * 0.01
+        # If min is 0 or very close to 0, add small negative padding to make 0.0 line visible
+        regret_ylims = (-max_regret * 0.02, max_regret * 1.05)
+    else
+        regret_ylims = (min_regret * 1.05, max_regret * 1.05)  # Add 5% padding
     end
 
     # Plot for each agent
@@ -332,15 +371,14 @@ function plot_history_comparison(histories::Vector{History},
             moving_avg_rewards[t] = Statistics.mean(history.rewards[start_idx:t])
         end
 
-        # Calculate regret
-        regret = optimal_cumulative .- cumulative_rewards
+        # Use pre-calculated regret
+        regret = all_regrets[agent_idx]
 
         # Get axes for this row
         ax_cum = axes_grid[agent_idx, 1]
         ax_avg = axes_grid[agent_idx, 2]
         ax_mov = axes_grid[agent_idx, 3]
         ax_reg = axes_grid[agent_idx, 4]
-        ax_rew = axes_grid[agent_idx, 5]
 
         color = agent_colors[agent_idx]
         label = labels[agent_idx]
@@ -362,14 +400,8 @@ function plot_history_comparison(histories::Vector{History},
         # Plot cumulative regret
         lines!(ax_reg, trials, regret, color = color, linewidth = 2, label = label)
         hlines!(ax_reg, 0.0, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal result")
-
-        # Plot rewards over time (scatter with low alpha for density)
-        scatter!(ax_rew, trials, history.rewards,
-                 color = color, markersize = 1.5, alpha = 0.2, label = label)
-        lines!(ax_rew, trials, moving_avg_rewards,
-               color = color, linewidth = 2)
-        hlines!(ax_rew, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal result")
-        ylims!(ax_rew, 0, 1)
+        # Align y-axis across all rows
+        ylims!(ax_reg, regret_ylims)
     end
 
     # fig[2]: Legend
@@ -382,7 +414,8 @@ function plot_history_comparison(histories::Vector{History},
            legend_elements,
            legend_labels,
            orientation = :horizontal, tellwidth = false, tellheight = true,
-           framevisible = false, nbanks = 1)
+           framevisible = false, nbanks = 1,
+           textsize = 20, patchsize = (20, 20))
 
     fig
 end

@@ -3,6 +3,8 @@ using SpecialFunctions
 
 abstract type AbstractEstimator end
 
+struct EmptyEstimator <: AbstractEstimator end # for random responding, choice kernel (only), etc. 
+
 """
 TODO: (nullでない) パラメータのリストを NamedTuple として持っておくと便利
 """
@@ -164,6 +166,12 @@ beta_mean(a, b) = a / (a+b)
 beta_η(a, b) = a / (a+b)
 beta_ν(a, b) = a+b
 beta_median(a, b) = (a-1) / (a+b-2)
+
+# EmptyEstimator does nothing on update
+function update!(e::EmptyEstimator, action::Int, reward::Float64)
+    # EmptyEstimator doesn't maintain any state, so nothing to update
+    return nothing
+end
 
 function update!(e::Estimator, action::Int, reward::Float64)
     n_arms = length(e.Q)

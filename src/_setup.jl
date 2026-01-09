@@ -4,6 +4,7 @@
 # Pkg.add("CSV")
 # Pkg.add("Distributions")
 # Pkg.add("StatsBase")
+# Pkg.add("Statistics")
 # Pkg.add("Optim")
 # Pkg.add("Distributed")
 # Pkg.add("IceCream")

@@ -66,6 +66,11 @@ function record!(history::History, trial::Int, action::Int, expectations::Vector
     # history.expectations[trial] = expectations
     history.rewards[trial] = reward
 end
+
+# Overload to accept estimator argument (ignored for History type)
+function record!(history::History, trial::Int, action::Int, expectations::Vector{Float64}, reward::Float64, estimator::AbstractEstimator)
+    record!(history, trial, action, expectations, reward)
+end
 mutable struct EstimatorHistory <: AbstractHistory
     n_arms::Int
     actions::Vector{Int}

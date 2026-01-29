@@ -1,17 +1,6 @@
 # using Pkg
-# Pkg.add("Random")
-# Pkg.add("DataFrames")
-# Pkg.add("CSV")
-# Pkg.add("Distributions")
-# Pkg.add("StatsBase")
-# Pkg.add("Statistics")
-# Pkg.add("Optim")
-# Pkg.add("Distributed")
-# Pkg.add("IceCream")
-# Pkg.add("ProgressMeter")
-# Pkg.add("YAML")
-# Pkg.add("SpecialFunctions")
-# add Random,  DataFrames,  Distributions,  StatsBase,  Optim,  Distributed,  IceCream
+# Pkg.add(["Random", "DataFrames", "CSV", "Distributions", "StatsBase", "Statistics", 
+#          "Optim", "Distributed", "IceCream", "ProgressMeter", "YAML", "SpecialFunctions"])
 
 using Random
 using DataFrames

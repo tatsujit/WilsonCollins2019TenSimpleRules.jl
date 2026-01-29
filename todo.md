@@ -1,3 +1,20 @@
+# 一番やるべきこと
+## バンディット部分のコードを github 上のライブラリとしてしまう
+- 手順についてはObsidian にノートを作る
+- [[20260130-julia-package-development-guide.md]]
+## それで、他のレポから呼べるようにしていきたい
+
+# バンディット関係の設計についての検討
+## `Model` と呼ばれるやつが action value estimator のくせに全部やっちゃっている
+- まあ softmax はパラメータなしで policy として呼べばいいんだから、良いと言えば良いのだが
+- 色んなシミュレーションも考えると、今のままで良いとは思う
+## Agent(Policy, AVE)
+## Environment
+## System(Agent, Environment, History, RNG)
+## 
+
+# 一つの考え方は、サンプルコードを最初に書いてしまうこと。それがうまく動くように諸々を調整していくというのは手である。
+
 
 # やるべきこと
 

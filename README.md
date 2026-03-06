@@ -43,3 +43,25 @@ using DrWatson
 ```
 
 which auto-activate the project and enable local path handling from DrWatson.
+
+## プロットを含むスクリプトの実行
+
+CairoMakie でプロットを表示するスクリプトを実行する際、OS によってコマンドを使い分ける必要があります。
+
+### macOS
+
+```sh
+julia -t auto --project=. scripts/plot-test.jl
+```
+
+macOS では `display(fig)` が内部的に `open` コマンドで一時 PNG ファイルを Preview.app に渡します。Preview.app はファイルを即座にメモリに読み込むため、スクリプト終了後に一時ファイルが削除されても問題なく表示されます。
+
+### Linux (Kubuntu 等)
+
+```sh
+julia -i -t auto --project=. scripts/plot-test.jl
+```
+
+Linux では `display(fig)` が `xdg-open` 経由で画像ビューアを起動しますが、ビューアの起動は非同期です。`-i` フラグなしで実行すると、ビューアがファイルを読み込む前に Julia プロセスが終了し一時ファイルが削除されるため、表示に失敗します。
+
+`-i` フラグを付けることでスクリプト実行後に REPL に入り、Julia プロセスが維持されるため一時ファイルが保持され、正しく表示されます。

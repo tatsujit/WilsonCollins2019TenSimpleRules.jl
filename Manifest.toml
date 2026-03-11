@@ -1083,7 +1083,7 @@ version = "0.2.4"
 
 [[deps.MultiBandits]]
 deps = ["Distributions", "LinearAlgebra", "Random", "SpecialFunctions", "Statistics", "StatsBase"]
-git-tree-sha1 = "90cad5ae9224684eec9ccebbe2cd2fa1a9af6ac3"
+git-tree-sha1 = "38d05423ee1997a250194b1ae03d8fc4d455d024"
 repo-rev = "main"
 repo-url = "https://github.com/tatsujit/MultiBandits.jl"
 uuid = "9bbc0396-bcd6-4171-82a6-9cd47f4ceb16"

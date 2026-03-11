@@ -2,11 +2,15 @@ using DrWatson
 @quickactivate "WilsonCollins2019TenSimpleRules.jl"
 
 # Here you may include files from the source directory
-include(srcdir("_setup.jl"))
+using MultiBandits 
+using Random, DataFrames
+include(srcdir("plots.jl"))
 
+#include(srcdir("_setup.jl"))
 rewardProbs = [0.2, 0.8]
 n_arms = length(rewardProbs)
 trials = 1_000
+rseed = 2345
 
 # common 
 env = Environment(rewardProbs)
@@ -17,16 +21,17 @@ probs_list = [
     rewardProbs,     # matching reward probabilities
     [0.0, 1.0]       # always choose arm 2 (optimal)
 ]
+n_agents = length(probs_list)
 labels = ["Uniform Random [0.5, 0.5]", "Matching Reward Probs [0.2, 0.8]", "Optimal [0.0, 1.0]"]
 
-histories = Vector{History}(undef, 3)
+histories = Vector{History}(undef, n_agents)
 for (i, probs) in enumerate(probs_list)
     pol = RandomResponding(probs)
     est = EmptyEstimator()
     agent = Agent(pol, est)
-    history = History(trials, n_arms)
-    rng = Random.MersenneTwister(42 + i)  # Different seed for each agent
-    system = System(agent, env, history, rng)
+    history = History(n_arms, trials)
+    rng = Random.MersenneTwister(rseed + i)  # Different seed for each agent
+    system = System(agent, env, history; rng=rng)
     run!(system, trials)
     histories[i] = history
 end

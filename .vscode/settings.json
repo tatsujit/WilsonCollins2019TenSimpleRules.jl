@@ -1,3 +1,4 @@
 {
-    "julia.environmentPath": "\\\\wsl.localhost\\Ubuntu\\home\\tatsu\\repos\\WilsonCollins2019TenSimpleRules.jl\\scripts"
+    "julia.environmentPath": "\\\\wsl.localhost\\Ubuntu\\home\\tatsu\\repos\\WilsonCollins2019TenSimpleRules.jl\\scripts",
+    "julia.useRevise": false
 }

@@ -41,18 +41,8 @@ fig_comparison = plot_history_comparison(histories, labels,
                                         figure_title = "Random Responding Comparison")
 display(fig_comparison)
 
-# est = Estimator(n_arms)
-# pol = SoftmaxPolicy()
-# agent = Agent(pol, est)
-# env = Environment(n_arms)
-# history = EstimatorHistory(trials, n_arms, est)
-# rng = Random.MersenneTwister(42)
-# system = System(agent, env, history, rng)
-
-# println(history)
-
-# # 包括的なプロットを作成
-# fig = plot_estimator_history(history)
+# 包括的なプロットを作成
+# fig = plot_estimator_history(histories[1])
 # display(fig)
 
 

@@ -1,4 +1,6 @@
 using CairoMakie
+using MultiBandits: action_moving_averages, cumulative_reward, average_rewards, moving_average_rewards,
+    find_optimal, cumulative_regret
 include(joinpath(@__DIR__, "plot_parameter_versus_performance.jl"))
 
 """
@@ -72,7 +74,7 @@ function plot_estimator_history(history::EstimatorHistory;
               label = "Arm $arm")
     end
     # Calculate and plot moving averages of actual action selections
-    moving_averages = calculate_action_moving_averages(history.actions, n_arms, moving_avg_window)
+    moving_averages = action_moving_averages(history.actions, n_arms, moving_avg_window)
 
     for arm in 1:n_arms
         lines!(ax_ma, trials, moving_averages[:, arm],
@@ -134,12 +136,12 @@ function plot_history_performance(history::History;
     fig = Figure(size = figsize)
 
     # Calculate performance metrics
-    cumulative_rewards = calculate_cumulative_rewards(history.rewards)
-    average_rewards = calculate_average_rewards(history.rewards)
-    moving_avg_rewards = calculate_moving_average_rewards(history.rewards, moving_avg_window)
+    cum_rewards = cumulative_reward(history.rewards)
+    avg_rewards = average_rewards(history.rewards)
+    movavg_rewards = moving_average_rewards(history.rewards, moving_avg_window)
 
     # Calculate action selection frequencies
-    action_frequencies = calculate_action_moving_averages(history.actions, n_arms, moving_avg_window)
+    action_frequencies = action_moving_averages(history.actions, n_arms, moving_avg_window)
 
     # Get reward probabilities and optimal values
     reward_probs = history.expectations
@@ -147,7 +149,7 @@ function plot_history_performance(history::History;
     optimal_reward = optimal.reward
 
     # Calculate cumulative regret
-    regret = calculate_cumulative_regret(history.actions, history.expectations)
+    regret = cumulative_regret(history.actions, history.expectations)
 
     # Create subplots: 2x3 grid
     ax_cum = Axis(fig[1, 1], title = "Cumulative Reward", xlabel = "Trial", ylabel = "Cumulative Reward")
@@ -175,17 +177,17 @@ function plot_history_performance(history::History;
     end
 
     # Plot cumulative reward
-    lines!(ax_cum, trials, cumulative_rewards, color = :blue, linewidth = 2, label = "Cumulative")
+    lines!(ax_cum, trials, cum_rewards, color = :blue, linewidth = 2, label = "Cumulative")
     # lines!(ax_cum, trials, optimal_cumulative, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal")
     axislegend(ax_cum, position = :lt)
 
     # Plot average reward
-    lines!(ax_avg, trials, average_rewards, color = :blue, linewidth = 2, label = "Average")
+    lines!(ax_avg, trials, avg_rewards, color = :blue, linewidth = 2, label = "Average")
     hlines!(ax_avg, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal")
     axislegend(ax_avg, position = :lt)
 
     # Plot moving average reward
-    lines!(ax_mov, trials, moving_avg_rewards, color = :blue, linewidth = 2, label = "Moving Avg")
+    lines!(ax_mov, trials, movavg_rewards, color = :blue, linewidth = 2, label = "Moving Avg")
     hlines!(ax_mov, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal")
     axislegend(ax_mov, position = :lt)
 
@@ -203,7 +205,7 @@ function plot_history_performance(history::History;
     # Plot rewards over time (scatter with low alpha for density)
     scatter!(ax_rew, trials, history.rewards, 
              color = :black, markersize = 2, alpha = 0.3, label = "Rewards")
-    lines!(ax_rew, trials, moving_avg_rewards, 
+    lines!(ax_rew, trials, movavg_rewards, 
            color = :blue, linewidth = 2, label = "Moving Avg")
     hlines!(ax_rew, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal")
     axislegend(ax_rew, position = :rt)
@@ -307,9 +309,9 @@ function plot_history_comparison(histories::Vector{History},
     # Plot for each agent
     for (agent_idx, history) in enumerate(histories)
         # Calculate performance metrics
-        cumulative_rewards = cumulative_rewards(history.rewards)
-        average_rewards = average_reward(history.rewards)
-        moving_avg_rewards = moving_average_rewards(history.rewards, moving_avg_window)
+        cum_rewards = cumulative_reward(history.rewards)
+        avg_rewards = average_rewards(history.rewards)
+        movavg_rewards = moving_average_rewards(history.rewards, moving_avg_window)
 
         # Use pre-calculated regret
         regret = all_regrets[agent_idx]
@@ -324,16 +326,16 @@ function plot_history_comparison(histories::Vector{History},
         label = labels[agent_idx]
 
         # Plot cumulative reward
-        lines!(ax_cum, trials, cumulative_rewards, color = color, linewidth = 2, label = label)
+        lines!(ax_cum, trials, cum_rewards, color = color, linewidth = 2, label = label)
         lines!(ax_cum, trials, optimal_cumulative, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal result")
 
         # Plot average reward
-        lines!(ax_avg, trials, average_rewards, color = color, linewidth = 2, label = label)
+        lines!(ax_avg, trials, avg_rewards, color = color, linewidth = 2, label = label)
         hlines!(ax_avg, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal result")
         ylims!(ax_avg, 0, 1)
 
         # Plot moving average reward
-        lines!(ax_mov, trials, moving_avg_rewards, color = color, linewidth = 2, label = label)
+        lines!(ax_mov, trials, movavg_rewards, color = color, linewidth = 2, label = label)
         hlines!(ax_mov, optimal_reward, color = :red, linestyle = :dash, linewidth = 2, label = "Optimal result")
         ylims!(ax_mov, 0, 1)
 

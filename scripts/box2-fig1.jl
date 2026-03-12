@@ -21,7 +21,7 @@ fig = Figure(size=(1100, 400))
 axA = Axis(fig[1, 1], 
     title = "stay behavior",
     xlabel = "previous reward",
-    ylabel = "p(stay)",
+    ylabel = L"p(\text{stay})",
     titlesize = titlesize,
     xlabelsize = xlabelsize,
     ylabelsize = ylabelsize,

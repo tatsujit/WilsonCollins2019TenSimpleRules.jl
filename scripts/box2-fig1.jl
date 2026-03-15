@@ -52,6 +52,6 @@ Label(fig[1, 2, TopLeft()], "B",
     halign = :left
 )
 
-lines!(ax, 1:trials, 1:trials)
+lines!(axA, 1:trials, 1:trials)
 fig |> display
 

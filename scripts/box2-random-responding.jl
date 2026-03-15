@@ -3,8 +3,9 @@ using DrWatson
 
 # Here you may include files from the source directory
 using MultiBandits 
-using Random, DataFrames
+using Random, DataFrames, Statistics
 include(srcdir("plots.jl"))
+include(srcdir("evaluation.jl"))
 
 #include(srcdir("_setup.jl"))
 rewardProbs = [0.2, 0.8]
@@ -35,6 +36,15 @@ for (i, probs) in enumerate(probs_list)
     run!(system, trials)
     histories[i] = history
 end
+
+# compute p(stay) from a history
+his = histories[1]
+as = his.actions
+rs = his.rewards
+
+p_stay = prob_stay(his.actions, his.rewards)
+
+
 
 # 比較プロットを作成 (3x5)
 fig_comparison = plot_history_comparison(histories, labels, 

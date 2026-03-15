@@ -13,14 +13,14 @@ n_arms = length(rewardProbs)
 trials = 1_000
 rseed = 2345
 
+# font size for titles, xlabels, ylabels
 (titlesize, xlabelsize, ylabelsize) = (32, 24, 24)
-
 
 fig = Figure(size=(1100, 400))
 
 axA = Axis(fig[1, 1], 
     title = "stay behavior",
-    xlabel = "previous reward",
+    xlabel = L"\text{previous reward}",
     ylabel = L"p(\text{stay})",
     titlesize = titlesize,
     xlabelsize = xlabelsize,
@@ -29,29 +29,42 @@ axA = Axis(fig[1, 1],
 
 axB1 = Axis(fig[1, 2], 
     title = "early trials",
-    xlabel = "learning rate, previous reward",
-    ylabel = L"p(\text{switch})",
+    xlabel = L"\text{learning rate, }\alpha",
+    ylabel = L"p(\text{correct})",
     titlesize = titlesize,
     xlabelsize = xlabelsize,
     ylabelsize = ylabelsize,
 )
-axB2 = Axis(fig[1, 3])
 
+axB2 = Axis(fig[1, 3],
+    title = "late trials",
+    xlabel = L"\text{learning rate, }\alpha",
+    titlesize = titlesize,
+    xlabelsize = xlabelsize,
+    ylabelsize = ylabelsize,
+)
+
+panel_label_size = 48
 # パネルラベル
 Label(fig[1, 1, TopLeft()], "A",
-    fontsize = 32,
+    fontsize = panel_label_size,
     font = :bold,
     padding = (0, 10, 10, 0),  # (left, right, top, bottom)
     halign = :left
 )
 
 Label(fig[1, 2, TopLeft()], "B",
-    fontsize = 32,
+    fontsize = panel_label_size,
     font = :bold,
     padding = (0, 10, 10, 0),
     halign = :left
 )
 
-lines!(ax, 1:trials, 1:trials)
+# A と B の間を広げる
+colgap!(fig.layout, 1, 50)
+
+lines!(axA, 1:trials, 1:trials)
+
+# save and display
 fig |> display
 

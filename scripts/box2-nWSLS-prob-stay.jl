@@ -17,15 +17,16 @@ rseed = 2345
 env = Environment(rewardProbs)
 
 # Create 3 different RandomResponding agents with different parameters
-probs_list = [
-    [0.5, 0.5],      # uniform random
-    rewardProbs,     # matching reward probabilities
-    [0.0, 1.0]       # always choose arm 2 (optimal)
+ϵs = [
+    0.0, 
+    0.1, 
+    0.5, 
+    1.0, 
 ]
-n_agents = length(probs_list)
-labels = ["Uniform Random [0.5, 0.5]", "Matching Reward Probs [0.2, 0.8]", "Optimal [0.0, 1.0]"]
-
+n_agents = length(ϵs)
+labels = ["ϵ=$ϵ" for ϵ in ϵs]
 histories = Vector{History}(undef, n_agents)
+
 for (i, probs) in enumerate(probs_list)
     pol = RandomResponding(probs)
     est = EmptyEstimator()
@@ -43,14 +44,21 @@ as = his.actions
 rs = his.rewards
 
 p_stay = prob_stay(his.actions, his.rewards)
+p_stays = [prob_stay(his.actions, his.rewards) for his in histories]
 
-
-
+fig = Figure(size=(400, 400))
+ax = Axis(fig[1, 1])
+box2_fig1A!(ax, histories, labels)
 # 比較プロットを作成 (3x5)
-fig_comparison = plot_history_comparison(histories, labels, 
+fig
+fig
+
+safesave(plotsdir("box2-fig1A-prob-stay.png"), fig)
+
+#= fig_comparison = plot_history_comparison(histories, labels, 
                                         figure_title = "Random Responding Comparison")
 display(fig_comparison)
-
+ =#
 # 包括的なプロットを作成
 # fig = plot_estimator_history(histories[1])
 # display(fig)

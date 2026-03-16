@@ -13,6 +13,10 @@ n_arms = length(rewardProbs)
 trials = 1_000
 rseed = 2345
 
+
+
+
+
 # font size for titles, xlabels, ylabels
 (titlesize, xlabelsize, ylabelsize) = (32, 24, 24)
 

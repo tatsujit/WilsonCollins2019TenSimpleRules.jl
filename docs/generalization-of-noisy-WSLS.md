@@ -1,3 +1,5 @@
+# Generalization of noisy-WSLS (win-stay-lose-shift) action selection model
+
 ## The original definition for two actions
 The noisy version of the win-stay-lose-shift (WSLS) model for the "two-bandit" case (where there are only two actions) is defined in Wilson & Collins (2019; p. 6 of 33) as follows. 
 The probability of chosing option $k$ at trial $t$ is: 
